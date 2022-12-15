@@ -1,4 +1,10 @@
 EzCrudLife/obj
 EzCrudLife/bin
+EzCrudLife.Repositories/obj
+EzCrudLife.Repositories/bin
+EzCrudLife.Services/obj
+EzCrudLife.Services/bin
+EzCrudLife.Models/obj
+EzCrudLife.Models/bin
 .idea
 .vs
