@@ -24,6 +24,8 @@ public static class StringExtensions
                 return "double";
             case "decimal":
                 return "double";
+            case "varbinary":
+                return "byte[]";
             default:
                 Console.WriteLine($"Unknown CSharp type for SQL type {sqlType}");
                 return "";

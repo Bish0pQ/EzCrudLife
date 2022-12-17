@@ -17,12 +17,13 @@ async Task Main()
     Console.Write("Project name: ");
     projectName = Console.ReadLine();
 
+    // Quick checks, to replace later
     if (string.IsNullOrWhiteSpace(connectionString)) return;
+    if (string.IsNullOrWhiteSpace(projectName)) return;
+    if (string.IsNullOrWhiteSpace(exportLocation)) return;
+    
     _databaseService = new SqlDatabaseService((connectionString));
-
     await GenerateModels();
-    
-    
     //await DisplayTables();
 }
 
@@ -33,7 +34,7 @@ async Task GenerateModels()
     
     // Build the models and write to disk
     var dapperModels = new List<DapperModel>();
-    foreach (var table in data) dapperModels.Add(new DapperModel(table, exportLocation));
+    foreach (var table in data) dapperModels.Add(new DapperModel(table, exportLocation, projectName));
     foreach (var dm in dapperModels) await dm.WriteToDiskAsync();
 
     Console.WriteLine($"Created {dapperModels.Count} new classes!");
