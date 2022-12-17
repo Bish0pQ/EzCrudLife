@@ -8,11 +8,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\EzCrudLife.Models\EzCrudLife.Models.csproj" />
-      <ProjectReference Include="..\EzCrudLife.Repositories\EzCrudLife.Repositories.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Interfaces" />
+      <Folder Include="Models" />
     </ItemGroup>
 
 </Project>

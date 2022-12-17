@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using EzCrudeLife.Models.DbModels;
+using EzCrudLife.Core.Services;
 using EzCrudLife.Repositories;
-using EzCrudLife.Services.Interfaces;
 
 namespace EzCrudLife.Services;
 

@@ -6,5 +6,7 @@ EzCrudLife.Services/obj
 EzCrudLife.Services/bin
 EzCrudLife.Models/obj
 EzCrudLife.Models/bin
+EzCrudLife.Core/obj
+EzCrudLife.Core/bin
 .idea
 .vs

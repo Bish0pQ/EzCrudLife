@@ -7,12 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\EzCrudLife.Core\EzCrudLife.Core.csproj" />
       <ProjectReference Include="..\EzCrudLife.Models\EzCrudLife.Models.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.0.123" />
       <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Interfaces" />
     </ItemGroup>
 
 </Project>

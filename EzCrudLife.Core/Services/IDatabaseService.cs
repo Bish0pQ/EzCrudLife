@@ -1,6 +1,6 @@
 ﻿using EzCrudeLife.Models.DbModels;
 
-namespace EzCrudLife.Services.Interfaces;
+namespace EzCrudLife.Core.Services;
 
 public interface IDatabaseService
 {

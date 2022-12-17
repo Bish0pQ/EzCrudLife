@@ -1,8 +1,11 @@
 ﻿using EzCrudeLife.Models.DbModels;
+using EzCrudeLife.Models.Logic;
 using EzCrudLife.Services;
 
 SqlDatabaseService _databaseService;
-var connectionString = "";
+var connectionString = @"";
+var projectName = ""; // Namespace
+var exportLocation = @"C:\Temp\Testing";
 
 // TODO: Get table information and column informationf
 await Main();
@@ -11,12 +14,34 @@ async Task Main()
 {
     Console.Write("ConnectionString: ");
     connectionString = Console.ReadLine();
+    Console.Write("Project name: ");
+    projectName = Console.ReadLine();
 
     if (string.IsNullOrWhiteSpace(connectionString)) return;
     _databaseService = new SqlDatabaseService((connectionString));
 
-    await DisplayTables();
+    await GenerateModels();
+    
+    
+    //await DisplayTables();
 }
+
+async Task GenerateModels()
+{
+    // Get the data from the database
+    var data = await _databaseService.GetInfoFromConnection(connectionString);
+    
+    // Build the models and write to disk
+    var dapperModels = new List<DapperModel>();
+    foreach (var table in data) dapperModels.Add(new DapperModel(table, exportLocation));
+    foreach (var dm in dapperModels) await dm.WriteToDiskAsync();
+
+    Console.WriteLine($"Created {dapperModels.Count} new classes!");
+    Console.ReadLine();
+}
+
+
+
 
 async Task DisplayTables()
 {

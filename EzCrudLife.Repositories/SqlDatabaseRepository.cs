@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using Dapper;
 using EzCrudeLife.Models.DbModels;
-using EzCrudLife.Repositories.Interfaces;
+using EzCrudLife.Core.Repositories;
 using Microsoft.Data.SqlClient;
 
 namespace EzCrudLife.Repositories;

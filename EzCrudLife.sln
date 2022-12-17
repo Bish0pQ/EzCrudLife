@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzCrudLife.Repositories", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzCrudLife.Services", "EzCrudLife.Services\EzCrudLife.Services.csproj", "{47864CFD-C8D4-410C-9054-A220589AE679}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzCrudLife.Core", "EzCrudLife.Core\EzCrudLife.Core.csproj", "{5D27DA60-CA16-47DA-923B-73F42F8DADF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{47864CFD-C8D4-410C-9054-A220589AE679}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47864CFD-C8D4-410C-9054-A220589AE679}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47864CFD-C8D4-410C-9054-A220589AE679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D27DA60-CA16-47DA-923B-73F42F8DADF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D27DA60-CA16-47DA-923B-73F42F8DADF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D27DA60-CA16-47DA-923B-73F42F8DADF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D27DA60-CA16-47DA-923B-73F42F8DADF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,6 +1,6 @@
 ﻿using EzCrudeLife.Models.DbModels;
 
-namespace EzCrudLife.Repositories.Interfaces;
+namespace EzCrudLife.Core.Repositories;
 
 public interface IDatabaseRepository
 {
