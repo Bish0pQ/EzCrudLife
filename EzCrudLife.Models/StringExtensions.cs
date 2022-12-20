@@ -19,13 +19,17 @@ public static class StringExtensions
             case "time":
                 return "DateTime";
             case "nchar":
-                return "char";
+                return "string";
             case "float":
                 return "double";
             case "decimal":
                 return "double";
             case "varbinary":
                 return "byte[]";
+            case "smallint":
+                return "short";
+            case "char":
+                return "char";
             default:
                 Console.WriteLine($"Unknown CSharp type for SQL type {sqlType}");
                 return "";
