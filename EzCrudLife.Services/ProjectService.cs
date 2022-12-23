@@ -18,27 +18,27 @@ public class ProjectService
         
             // Generate the core
             result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName)} --name {projectName} --lang C#");
+                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName)} --name {projectName}");
         
             // Generate the API
             result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.WebApi.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName, ".API")} --name {projectName} --lang C#");
+                $"dotnet new {DotNetType.WebApi.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.API")} --name {projectName}.API");
             if (!result) return result;
         
             // Generate the models
             result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName, ".Models")} --name {projectName} --lang C#");
+                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Models")} --name {projectName}.Models");
             if (!result) return result;
         
             // Generate the repositories
             result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName, ".Repositories")} --name {projectName} --lang C#");
+                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Repositories")} --name {projectName}.Repositories");
             if (!result) return result;
         
             // Generate the services
             if (!result) return result;
             result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {options.Directory} --name {Path.Combine(options.Directory, projectName, ".Services")} --lang C#");
+                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Services")} --name {projectName}.Services");
 
             return result;
         }
@@ -70,6 +70,15 @@ public class ProjectService
             var output = await process.StandardOutput.ReadToEndAsync();
             var error = await process.StandardError.ReadToEndAsync();
         
+            Console.WriteLine("Process output:" + output);
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error output: " + error);
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            
             await process.WaitForExitAsync();
             process.Close();
         

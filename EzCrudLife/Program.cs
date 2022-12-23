@@ -2,9 +2,12 @@
 using EzCrudeLife.Models;
 using EzCrudeLife.Models.DbModels;
 using EzCrudeLife.Models.Logic;
+using EzCrudeLife.Models.OptionModels;
 using EzCrudLife.Services;
 
 SqlDatabaseService _databaseService;
+ProjectService _projectService;
+
 var connectionString = @"";
 var projectName = ""; // Namespace
 var exportLocation = @"C:\Temp\Testing";
@@ -20,12 +23,30 @@ async Task Main()
     Console.Write("Project name: ");
     projectName = Console.ReadLine();
 
+    Console.ForegroundColor = ConsoleColor.White;  
     // Quick checks, to replace later
     if (string.IsNullOrWhiteSpace(connectionString)) return;
     if (string.IsNullOrWhiteSpace(projectName)) return;
     if (string.IsNullOrWhiteSpace(exportLocation)) return;
-    
+
     _databaseService = new SqlDatabaseService((connectionString));
+    _projectService = new ProjectService();
+
+    Console.Write("Generating projects...");
+    var result = await _projectService.CreateProjects(new ProjectGenerateOptions()
+    {
+        GenerateApiProject = true,
+        GenerateModelsProject = true,
+        GenerateRepositoriesProject = true,
+        GenerateServicesProject = true,
+        Directory = exportLocation,
+        ProjectName = projectName
+    });
+    
+    Console.WriteLine("Generating projects... " + (result ? " [OK]" : "[NOK]"));
+    Console.Write("Generate models?");
+    Console.ReadLine();
+    
     var tables = await GenerateModels();
     Thread.Sleep(1000);
     await GenerateMigrations(tables);
