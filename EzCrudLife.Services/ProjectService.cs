@@ -17,43 +17,41 @@ public class ProjectService
             var projectName = options.ProjectName;
         
             // Create the solution
-            var result = await RunDotNetCommand(projectName, $"dotnet new sln --name {projectName} --output {options.Directory}");
+            var result = await RunDotNetCommand($"dotnet new sln --name {projectName} --output {options.Directory}");
             if (!result) return result;
         
             // Generate the core
-            result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName)} --name {projectName}");
+            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName)} --name {projectName}");
         
             // Generate the API
-            result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.WebApi.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.API")} --name {projectName}.API");
+            result = await RunDotNetCommand($"dotnet new {DotNetType.WebApi.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.API")} --name {projectName}.API");
             if (!result) return result;
         
             // Generate the models
-            result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Models")} --name {projectName}.Models");
+            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Models")} --name {projectName}.Models");
             if (!result) return result;
         
             // Generate the repositories
-            result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Repositories")} --name {projectName}.Repositories");
+            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Repositories")} --name {projectName}.Repositories");
             if (!result) return result;
         
             // Generate the services
             if (!result) return result;
-            result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Services")} --name {projectName}.Services");   
+            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Services")} --name {projectName}.Services");   
             
             // Generate the migrations
             if (!result) return result;
-            result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Migrations")} --name {projectName}.Migrations");
+            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Migrations")} --name {projectName}.Migrations");
 
             // Clean-up any redundant files
             CleanUpProjects(options.Directory);
          
             // Add the projects to the solution file
-            await AddProjects(options.Directory, projectName);
+            await AddProjects(options.Directory);
+            
+            // Add the NuGet packages
+            await AddPackage(Path.Combine(options.Directory, $"{projectName}.Migrations"), "FluentMigrator");
+            await AddPackage(Path.Combine(options.Directory, $"{projectName}.Models"), "Dapper.Contrib");
             
             return result;
         }
@@ -64,7 +62,7 @@ public class ProjectService
         }
     }
 
-    public async Task AddProjects(string directory, string projectName)
+    public async Task AddProjects(string directory)
     {
         // Find the SLN file
         var slnFile = Directory.GetFiles(directory, searchPattern: "*.sln", SearchOption.TopDirectoryOnly)[0];
@@ -74,8 +72,19 @@ public class ProjectService
         foreach (var projectFile in allProjectFiles)
         {
             Console.WriteLine($"Adding project {Path.GetFileName(projectFile)} to solution...");
-            await RunDotNetCommand(projectName, $"dotnet sln {slnFile} add {projectFile}");
+            await RunDotNetCommand($"dotnet sln {slnFile} add {projectFile}");
         }
+    }
+
+    public async Task AddPackage(string projectName, string packageName)
+    {
+        if (string.IsNullOrWhiteSpace(packageName))
+        {
+            Console.WriteLine("Invalid package");
+            return;
+        }
+        
+        await RunDotNetCommand($"dotnet add {projectName} package {packageName}");
     }
 
     public void CleanUpProjects(string directory)
@@ -100,7 +109,7 @@ public class ProjectService
         Console.WriteLine(" OK");
     }
 
-    public async Task<bool> RunDotNetCommand(string projectName, string arguments)
+    public async Task<bool> RunDotNetCommand(string arguments)
     {
         try
         {

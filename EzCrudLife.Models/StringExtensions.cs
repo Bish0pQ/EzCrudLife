@@ -13,6 +13,10 @@ public static class StringExtensions
                 return "string";
             case "int":
                 return "int";
+            case "numeric":
+                return "int";
+            case "text":
+                return "string";
             case "datetime":
                 return "DateTime";
             case "bit":
