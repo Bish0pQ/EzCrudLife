@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Security.AccessControl;
 using EzCrudeLife.Models.Enums;
 using EzCrudeLife.Models.OptionModels;
 
@@ -50,6 +51,9 @@ public class ProjectService
 
             // Clean-up any redundant files
             CleanUpProjects(options.Directory);
+         
+            // Add the projects to the solution file
+            await AddProjects(options.Directory, projectName);
             
             return result;
         }
@@ -57,6 +61,20 @@ public class ProjectService
         {
             Console.WriteLine(exception.ToString());
             return false;
+        }
+    }
+
+    public async Task AddProjects(string directory, string projectName)
+    {
+        // Find the SLN file
+        var slnFile = Directory.GetFiles(directory, searchPattern: "*.sln", SearchOption.TopDirectoryOnly)[0];
+        Console.WriteLine($"Solution file found on path {slnFile}");
+        
+        var allProjectFiles = Directory.GetFiles(directory, searchPattern: "*.csproj", SearchOption.AllDirectories);
+        foreach (var projectFile in allProjectFiles)
+        {
+            Console.WriteLine($"Adding project {Path.GetFileName(projectFile)} to solution...");
+            await RunDotNetCommand(projectName, $"dotnet sln {slnFile} add {projectFile}");
         }
     }
 
