@@ -6,6 +6,9 @@ namespace EzCrudLife.Services;
 
 public class ProjectService
 {
+    private const string DefaultClassName = "Class1.cs";
+    private const string DefaultControllerName = "WeatherForecastController.cs";
+    private const string DefaultControllerModelName = "WeatherForecast.cs";
     public async Task<bool> CreateProjects(ProjectGenerateOptions options)
     {
         try
@@ -38,8 +41,16 @@ public class ProjectService
             // Generate the services
             if (!result) return result;
             result = await RunDotNetCommand(projectName,
-                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Services")} --name {projectName}.Services");
+                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Services")} --name {projectName}.Services");   
+            
+            // Generate the migrations
+            if (!result) return result;
+            result = await RunDotNetCommand(projectName,
+                $"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Migrations")} --name {projectName}.Migrations");
 
+            // Clean-up any redundant files
+            CleanUpProjects(options.Directory);
+            
             return result;
         }
         catch (Exception exception)
@@ -47,6 +58,28 @@ public class ProjectService
             Console.WriteLine(exception.ToString());
             return false;
         }
+    }
+
+    public void CleanUpProjects(string directory)
+    {
+        var defaultClassNames = new List<string>()
+        {
+            "class1.cs",
+            "weatherforecastcontroller.cs",
+            "weatherforecast.cs"
+        };
+
+        // Find the redundant files
+        var allFiles = Directory.GetFiles(directory, searchPattern: "*.cs", SearchOption.AllDirectories);
+        var filesToDelete = allFiles
+            .Where(file => defaultClassNames
+                .Contains(Path.GetFileName(file).ToLower())).ToList();
+        
+        Console.Write($"A total of {filesToDelete.Count} redundant files have been found. Deleting...");
+        
+        // Delete all the redundant files
+        Array.ForEach(filesToDelete.ToArray(), File.Delete);
+        Console.WriteLine(" OK");
     }
 
     public async Task<bool> RunDotNetCommand(string projectName, string arguments)

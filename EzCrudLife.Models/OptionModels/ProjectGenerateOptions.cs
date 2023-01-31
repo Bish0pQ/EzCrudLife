@@ -6,12 +6,14 @@ public class ProjectGenerateOptions
     {
     }
 
-    public ProjectGenerateOptions(bool generateApiProject, bool generateModelsProject, bool generateRepositoriesProject, bool generateServicesProject)
+    public ProjectGenerateOptions(bool generateApiProject, bool generateModelsProject, bool generateRepositoriesProject, bool generateServicesProject,
+        bool generateMigrationsProject)
     {
         GenerateApiProject = generateApiProject;
         GenerateModelsProject = generateModelsProject;
         GenerateRepositoriesProject = generateRepositoriesProject;
         GenerateServicesProject = generateServicesProject;
+        GenerateMigrationsProject = generateMigrationsProject;
     }
 
     public string Directory { get; set; }
@@ -20,4 +22,5 @@ public class ProjectGenerateOptions
     public bool GenerateModelsProject { get; set; } = true;
     public bool GenerateRepositoriesProject { get; set; } = false;
     public bool GenerateServicesProject { get; set; } = false;
+    public bool GenerateMigrationsProject { get; set; } = true;
 }
