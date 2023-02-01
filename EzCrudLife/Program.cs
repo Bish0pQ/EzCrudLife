@@ -18,8 +18,12 @@ await Main();
 
 async Task Main()
 {
-    Console.Write("ConnectionString: ");
-    connectionString = Console.ReadLine();
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        Console.Write("ConnectionString: ");
+        connectionString = Console.ReadLine();    
+    }
+    
     Console.Write("Project name: ");
     projectName = Console.ReadLine();
 
@@ -44,12 +48,17 @@ async Task Main()
     });
     
     Console.WriteLine("Generating projects... " + (result ? " [OK]" : "[NOK]"));
-    Console.Write("Generate models?");
-    Console.ReadLine();
-    
+
+    Console.WriteLine("Generating models...");
+    Thread.Sleep(1000);
     var tables = await GenerateModels();
     Thread.Sleep(1000);
     await GenerateMigrations(tables);
+    
+    Console.WriteLine("Preparing generating repositories...");
+    Thread.Sleep(1000);
+    await GenerateRepositories(tables);
+    
     //await DisplayTables();
 }
 
@@ -61,7 +70,7 @@ async Task<List<DatabaseTable>> GenerateModels()
     
     // Build the models and write to disk
     var dapperModels = new List<DapperModel>();
-    foreach (var table in data) dapperModels.Add(new DapperModel(table, Path.Combine(exportLocation, "Models"), projectName));
+    foreach (var table in data) dapperModels.Add(new DapperModel(table, Path.Combine(exportLocation, $"{projectName}.Models"), projectName));
     foreach (var dm in dapperModels) await dm.WriteToDiskAsync();
 
     Console.WriteLine($"Created {dapperModels.Count} new classes!");
@@ -71,6 +80,8 @@ async Task<List<DatabaseTable>> GenerateModels()
 // Generate the migration based on the SQL database
 async Task GenerateMigrations(List<DatabaseTable> tables)
 {
+    // TODO: Make sure Table object exists
+    
     foreach (var table in tables)
     {
         var fileNameOnly = $"Migration{getMigrationVersion()}_Add{table.Name}.cs";
@@ -87,9 +98,20 @@ async Task GenerateMigrations(List<DatabaseTable> tables)
             .AppendLine("}");
         
         // Write the file to disk
-        if (exportLocation != null) await sb.WriteToDiskAsync(Path.Combine(exportLocation, "Migrations", fileNameOnly));
+        if (exportLocation != null) await sb.WriteToDiskAsync(Path.Combine(exportLocation, $"{projectName}.Migrations", fileNameOnly));
         migrationNumber++;
     }
+}
+
+async Task<bool> GenerateRepositories(List<DatabaseTable> tables)
+{
+    // Build the models and write to disk
+    var dapperModels = new List<DapperRepositoryModel>();
+    foreach (var table in tables) dapperModels.Add(new DapperRepositoryModel(table, Path.Combine(exportLocation, $"{projectName}.Repositories"), projectName));
+    foreach (var dm in dapperModels) await dm.WriteToDiskAsync();
+
+    Console.WriteLine($"Created {dapperModels.Count} new repositories!");
+    return true;
 }
 
 
@@ -97,7 +119,7 @@ StringBuilder GetBaseTemplate(string table)
 {
     var sb = new StringBuilder();
     sb.AppendLine("using FluentMigrator;")
-        .AppendLine("namespace " + projectName + ";")
+        .AppendLine("namespace " + projectName + ".Migrations;")
         .AppendLine($"\r\n[Migration({getMigrationVersion()})]")
         .AppendLine($"public class Migration{getMigrationVersion()}_Add{table} : Migration")
         .AppendLine("{")

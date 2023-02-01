@@ -52,6 +52,11 @@ public class ProjectService
             // Add the NuGet packages
             await AddPackage(Path.Combine(options.Directory, $"{projectName}.Migrations"), "FluentMigrator");
             await AddPackage(Path.Combine(options.Directory, $"{projectName}.Models"), "Dapper.Contrib");
+            await AddPackage(Path.Combine(options.Directory, $"{projectName}.Repositories"), "Dapper.Contrib");
+            await AddPackage(Path.Combine(options.Directory, $"{projectName}.Repositories"), "Microsoft.Data.SqlClient");
+            await AddPackage(Path.Combine(options.Directory, $"{projectName}.Repositories"), "Serilog");
+
+            await AddReference($"{projectName}.Repositories", $"{projectName}.Models", options.Directory);
             
             return result;
         }
@@ -87,6 +92,15 @@ public class ProjectService
         await RunDotNetCommand($"dotnet add {projectName} package {packageName}");
     }
 
+    public async Task AddReference(string sourceProjectName, string targetProjectName, string directory)
+    {
+        var allFiles = Directory.GetFiles(directory, searchPattern: "*.csproj", SearchOption.AllDirectories);
+        var source = allFiles.FirstOrDefault(x => x.ToLower().Contains(sourceProjectName.ToLower()));
+        var target = allFiles.FirstOrDefault(x => x.ToLower().Contains(targetProjectName.ToLower()));
+        
+        await RunDotNetCommand($"dotnet add {source} reference {target}");
+    }
+    
     public void CleanUpProjects(string directory)
     {
         var defaultClassNames = new List<string>()
