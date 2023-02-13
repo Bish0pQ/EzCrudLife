@@ -81,6 +81,7 @@ async Task<List<DatabaseTable>> GenerateModels()
 async Task GenerateMigrations(List<DatabaseTable> tables)
 {
     // TODO: Make sure Table object exists
+    await CreateGlobalTablesClass(tables);
     
     foreach (var table in tables)
     {
@@ -103,15 +104,92 @@ async Task GenerateMigrations(List<DatabaseTable> tables)
     }
 }
 
+async Task<bool> CreateGlobalTablesClass(List<DatabaseTable> tables)
+{
+    Console.Write("Creating global tables class...");
+    var sb = new StringBuilder()
+        .InNamespace(projectName + ".Migrations")
+        .InsertClass("Tables", isAbstract: true);
+
+    var template = sb.ToString();
+
+    sb.Clear(); // Data
+    Array.ForEach(tables.ToArray(), table =>
+    {
+        sb.Indent(1).InsertConstantVariable(typeof(string), table.Name, table.Name);
+    });
+
+    template = template.Replace("%d", sb.ToString());
+    sb.Clear();
+    sb.Append(template);
+    
+    var success = await sb.WriteToDiskAsync(Path.Combine(exportLocation, $"{projectName}.Migrations", "Tables.cs"));
+    Console.WriteLine(" OK");
+    return success;
+}
+
 async Task<bool> GenerateRepositories(List<DatabaseTable> tables)
 {
+    // Create the database provider
+    await CreateDatabaseProvider();
+    
     // Build the models and write to disk
     var dapperModels = new List<DapperRepositoryModel>();
     foreach (var table in tables) dapperModels.Add(new DapperRepositoryModel(table, Path.Combine(exportLocation, $"{projectName}.Repositories"), projectName));
     foreach (var dm in dapperModels) await dm.WriteToDiskAsync();
 
     Console.WriteLine($"Created {dapperModels.Count} new repositories!");
+
     return true;
+}
+
+async Task CreateDatabaseProviderInterface()
+{
+    projectName ??= "test"; // TODO: To replace
+    var sb = new StringBuilder();
+    sb.InNamespace(projectName + ".Repositories.Interfaces")
+        .UseImport("System.Data")
+        .AppendLine("public interface IDatabaseProvider")
+        .Indent(0, startingCharacter: "{")
+        .NewLine().Indent(1).AppendLine("public string GetConnectionString();")
+        .Indent(0, startingCharacter: "}");
+
+    var interfacePath = Path.Combine(exportLocation, $"{projectName}.Repositories", "Interfaces");
+    if (!Directory.Exists(interfacePath))
+    {
+        Console.Write("Interface directory is missing, creating... ");
+        Directory.CreateDirectory(interfacePath);
+        Console.WriteLine(" OK");
+    }
+
+    await sb.WriteToDiskAsync(Path.Combine(interfacePath, "IDatabaseProvider.cs"));
+}
+
+async Task CreateDatabaseProvider()
+{
+    await CreateDatabaseProviderInterface();
+    
+    var sb = new StringBuilder();
+    sb.InNamespace(projectName + ".Repositories")
+        .UseImport("Microsoft.Extensions.Configuration")
+        .UseImport($"{projectName}.Repositories.Interfaces")
+        .InsertClass("DatabaseProvider : IDatabaseProvider"); // TODO: Add proper inherits lates
+
+    var template = sb.ToString();
+    sb.Clear();
+
+    sb.SetVariable("_config", "IConfiguration", "private", "readonly")
+        .InsertConstructor("DatabaseProvider", new Dictionary<string, string>()
+        {
+            { "IConfiguration", "config" }
+        })
+        .InsertShortHandFunction("GetConnectionString", " _config[\"ConnectionStrings:DbConnectionString\"];");
+
+    template = template.Replace("%d", sb.ToString());
+    sb.Clear();
+
+    sb.AppendLine(template);
+    await sb.WriteToDiskAsync(Path.Combine(exportLocation, $"{projectName}.Repositories", "DatabaseProvider.cs"));
 }
 
 
@@ -132,22 +210,6 @@ StringBuilder GetBaseTemplate(string table)
 }
 
 string getMigrationVersion() => migrationNumber.ToString().Length == 1 ? "00000000000" + migrationNumber : "0000000000" + migrationNumber;
-
-
-//
-// async Task DisplayTables()
-// {
-//     var data = await _databaseService.GetInfoFromConnection(connectionString);
-//     Console.WriteLine($"Found a total of {data.Count} tables.");
-//     foreach (var table in data)
-//     {
-//         table.Columns ??= new List<DatabaseColumn>();
-//         Console.WriteLine($"Table {table.Name} has {table.Columns.Count} columns.");
-//     }
-//
-//     Console.WriteLine("Press ANY key to exit.");
-//     Console.ReadLine();
-// }
 
 // TODO: Generate repositories
 // TODO: Generate services
