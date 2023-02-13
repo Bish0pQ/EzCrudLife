@@ -10,6 +10,19 @@ public class ProjectService
     private const string DefaultClassName = "Class1.cs";
     private const string DefaultControllerName = "WeatherForecastController.cs";
     private const string DefaultControllerModelName = "WeatherForecast.cs";
+    private DotNetService _dotNetService;
+
+    public ProjectService()
+    {
+        _dotNetService = new DotNetService();
+    }
+
+    public ProjectService(DotNetService dotNetService)
+    {
+        _dotNetService = dotNetService;
+    }
+
+
     public async Task<bool> CreateProjects(ProjectGenerateOptions options)
     {
         try
@@ -17,31 +30,31 @@ public class ProjectService
             var projectName = options.ProjectName;
         
             // Create the solution
-            var result = await RunDotNetCommand($"dotnet new sln --name {projectName} --output {options.Directory}");
+            var result = await _dotNetService.RunDotNetCommand($"dotnet new sln --name {projectName} --output {options.Directory}");
             if (!result) return result;
         
             // Generate the core
-            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName)} --name {projectName}");
+            result = await _dotNetService.RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, projectName)} --name {projectName}");
         
             // Generate the API
-            result = await RunDotNetCommand($"dotnet new {DotNetType.WebApi.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.API")} --name {projectName}.API");
+            result = await _dotNetService.RunDotNetCommand($"dotnet new {DotNetType.WebApi.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.API")} --name {projectName}.API");
             if (!result) return result;
         
             // Generate the models
-            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Models")} --name {projectName}.Models");
+            result = await _dotNetService.RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Models")} --name {projectName}.Models");
             if (!result) return result;
         
             // Generate the repositories
-            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Repositories")} --name {projectName}.Repositories");
+            result = await _dotNetService.RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Repositories")} --name {projectName}.Repositories");
             if (!result) return result;
         
             // Generate the services
             if (!result) return result;
-            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Services")} --name {projectName}.Services");   
+            result = await _dotNetService.RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Services")} --name {projectName}.Services");   
             
             // Generate the migrations
             if (!result) return result;
-            result = await RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Migrations")} --name {projectName}.Migrations");
+            result = await _dotNetService.RunDotNetCommand($"dotnet new {DotNetType.ClassLib.ToString().ToLower()} --output {Path.Combine(options.Directory, $"{projectName}.Migrations")} --name {projectName}.Migrations");
 
             // Clean-up any redundant files
             CleanUpProjects(options.Directory);
@@ -77,7 +90,7 @@ public class ProjectService
         foreach (var projectFile in allProjectFiles)
         {
             Console.WriteLine($"Adding project {Path.GetFileName(projectFile)} to solution...");
-            await RunDotNetCommand($"dotnet sln {slnFile} add {projectFile}");
+            await _dotNetService.RunDotNetCommand($"dotnet sln {slnFile} add {projectFile}");
         }
     }
 
@@ -89,7 +102,7 @@ public class ProjectService
             return;
         }
         
-        await RunDotNetCommand($"dotnet add {projectName} package {packageName}");
+        await _dotNetService.RunDotNetCommand($"dotnet add {projectName} package {packageName}");
     }
 
     public async Task AddReference(string sourceProjectName, string targetProjectName, string directory)
@@ -98,7 +111,7 @@ public class ProjectService
         var source = allFiles.FirstOrDefault(x => x.ToLower().Contains(sourceProjectName.ToLower()));
         var target = allFiles.FirstOrDefault(x => x.ToLower().Contains(targetProjectName.ToLower()));
         
-        await RunDotNetCommand($"dotnet add {source} reference {target}");
+        await _dotNetService.RunDotNetCommand($"dotnet add {source} reference {target}");
     }
     
     public void CleanUpProjects(string directory)
@@ -123,45 +136,5 @@ public class ProjectService
         Console.WriteLine(" OK");
     }
 
-    public async Task<bool> RunDotNetCommand(string arguments)
-    {
-        try
-        {
-            // Set the path to the dotnet executable
-            var dotnetPath = @"C:\Program Files\dotnet\dotnet.exe";
-            
-            // Create a new process and start it
-            var process = new Process();
-            process.StartInfo.FileName = dotnetPath;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.RedirectStandardOutput = true;
-        
-            process.StartInfo.Arguments = arguments;
-            process.Start();
-
-            // Read the standard output and error streams of the process
-            var output = await process.StandardOutput.ReadToEndAsync();
-            var error = await process.StandardError.ReadToEndAsync();
-        
-            Console.WriteLine("Process output:" + output);
-
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error output: " + error);
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-            
-            await process.WaitForExitAsync();
-            process.Close();
-        
-            return true;
-        }
-        catch (Exception exception)
-        {
-            Console.WriteLine(exception);
-            return false;
-        }
-    }
+   
 }

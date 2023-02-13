@@ -30,12 +30,29 @@ public class DapperRepositoryModel : IGeneratedModel
         // Generate base template
         var baseTemplate = Templates.GetDapperRepositoryModelTemplate(ProjectName);
 
-        // TODO: Add constructor for initializing connection string
-        
         // Build the actual repository methods
         var sb = new StringBuilder();
-        sb.SetVariable("_logger", "ILogger", "private", "readonly");
-        sb.SetVariable("_connectionString", "string", "private", "readonly");
+        
+        // Declare variables
+        sb.SetVariable("_logger", "ILogger", "private", "readonly")
+            .SetVariable("_sqlProvider", "DatabaseProvider", "private", "readonly")
+            .AppendLine();
+        
+        // Create constructors
+        sb.InsertConstructor(_table.Name + "Repository", new Dictionary<string, string>()
+        {
+            {
+                "ILogger", "logger"
+            },
+            {
+                "DatabaseProvider", "sqlProvider"
+            }
+            
+        });
+
+        sb.InsertConstructor(_table.Name + "Repository", new Dictionary<string, string>());
+        
+        // Add dapper methods
         sb.InsertDapperMethod(_table.Name + "Dto", DapperMethodType.Insert);
         sb.InsertDapperMethod(_table.Name + "Dto", DapperMethodType.Update);
         sb.InsertDapperMethod(_table.Name + "Dto", DapperMethodType.Delete);
@@ -43,7 +60,7 @@ public class DapperRepositoryModel : IGeneratedModel
 
         Output = baseTemplate
             .Replace("%dt", _table.Name)
-            .Replace("%t", _table.Name + ClassSuffix)
+            .Replace("%t", _table.Name + "Repository" + ClassSuffix)
             .Replace("%d", sb.ToString());
     }
 }

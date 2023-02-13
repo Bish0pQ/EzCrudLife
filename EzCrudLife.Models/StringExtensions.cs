@@ -87,8 +87,22 @@ public static class StringExtensions
         bool isStatic = false) => builder.Append($"\r\npublic {(isAbstract ? "abstract " : "")}{(isStatic ? "static " : "")}class " +
         $"{className}\r\n{{\r\n%d}}");
 
+    public static StringBuilder InsertConstructor(this StringBuilder sb, string className, Dictionary<string, string> parameters)
+    {
+        // Generate the constructor
+        sb.AppendLine("\tpublic " + className + "(" + string.Join(", ", parameters.Select(x => x.Key + " " + x.Value)) +
+                      ") ")
+            .Indent(1).AppendLine("{");
+        foreach (KeyValuePair<string, string> parameter in parameters)
+            sb.AppendLine($"\t\t_{parameter.Value.ToLower()} = {parameter.Value};");
+        sb.AppendLine("\t}");
+
+        return sb;
+    }
+    
     public static StringBuilder InsertConstantVariable(this StringBuilder builder, Type t, string name, string value) =>
         builder.AppendLine($"public const {t.Name.ToLower()} {name} = \"{value}\";"); 
+    
     public static StringBuilder InsertDapperMethod(this StringBuilder builder, string itemName, DapperMethodType methodType)
     {
         var returnType = methodType switch
@@ -110,7 +124,7 @@ public static class StringExtensions
             
             indentLevel = 3;
             builder.NewLine().Indent(indentLevel)
-                .AppendLine("using IDbConnection connection = new SqlConnection(_connectionString);")
+                .AppendLine("using IDbConnection connection = new SqlConnection(_sqlProvider.GetConnectionString());")
                 .Indent(indentLevel);
 
             if (methodType != DapperMethodType.Get)
