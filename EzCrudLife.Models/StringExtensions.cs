@@ -10,28 +10,18 @@ public static class StringExtensions
     {
         switch (sqlType)
         {
-            case "varchar" or "nvarchar":
+            case "varchar" or "nvarchar" or "nchar" or "text":
                 return "string";
-            case "int":
+            case "int" or "numeric":
                 return "int";
-            case "numeric":
-                return "int";
-            case "text":
-                return "string";
-            case "datetime":
+            case "datetime" or "datetime2" or "time":
                 return "DateTime";
+            case "float" or "decimal":
+                return "double";
             case "bit":
                 return "bool";
             case "bigint":
                 return "long";
-            case "time":
-                return "DateTime";
-            case "nchar":
-                return "string";
-            case "float":
-                return "double";
-            case "decimal":
-                return "double";
             case "varbinary":
                 return "byte[]";
             case "smallint":
@@ -79,8 +69,11 @@ public static class StringExtensions
                 return ".AsBinary()";
             case "bigint":
                 return ".AsInt64()";
+            case "smallint" or "short":
+                return ".AsInt16()";
         }
 
+        Console.WriteLine($"[Error] Following SQL type has no mapping for fluent migrator: {type}");
         return "";
     }
 
@@ -90,8 +83,12 @@ public static class StringExtensions
     public static StringBuilder InNamespace(this StringBuilder builder, string nameSpace) => builder.Append($"namespace {nameSpace};\r\n");
     public static StringBuilder InsertAttribute(this StringBuilder builder, string attribute, string attributeValue) =>
         builder.Append($"[{attribute}({attributeValue})]");
-    public static StringBuilder InsertClass(this StringBuilder builder) => builder.Append("\r\npublic class %t\r\n{\r\n%d}");
+    public static StringBuilder InsertClass(this StringBuilder builder, string className, bool isAbstract = false,
+        bool isStatic = false) => builder.Append($"\r\npublic {(isAbstract ? "abstract" : "")}{(isStatic ? "static" : "")} class " +
+        $"{className}\r\n{{\r\n%d}}");
 
+    public static StringBuilder InsertConstantVariable(this StringBuilder builder, Type t, string name, string value) =>
+        builder.AppendLine($"public const {t.Name.ToLower()} {name} = \"{value}\";"); 
     public static StringBuilder InsertDapperMethod(this StringBuilder builder, string itemName, DapperMethodType methodType)
     {
         var returnType = methodType switch

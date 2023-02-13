@@ -10,7 +10,7 @@ public abstract class Templates
         sb.UseImport("Dapper.Contrib.Extensions")
             .InNamespace(nameSpace + ".Models")
             .InsertAttribute("Dapper.Contrib.Extensions.Table", "\"%dt\"")
-            .InsertClass();
+            .InsertClass("%t"); // will be filled in later
         
         return sb.ToString();
     }
@@ -25,7 +25,7 @@ public abstract class Templates
             .UseImport("System.Data")
             .UseImport(nameSpace + ".Models")
             .InNamespace(nameSpace + ".Repositories")
-            .InsertClass();
+            .InsertClass("%t"); // will be filled in later
 
         return sb.ToString();
     }
