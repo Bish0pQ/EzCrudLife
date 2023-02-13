@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Reflection;
+using System.Text;
 using EzCrudeLife.Models;
 using EzCrudeLife.Models.DbModels;
 using EzCrudeLife.Models.Logic;
@@ -18,6 +20,9 @@ await Main();
 
 async Task Main()
 {
+    SetTitle();
+    ShowHeader();
+
     if (string.IsNullOrEmpty(connectionString))
     {
         Console.Write("ConnectionString: ");
@@ -211,8 +216,27 @@ StringBuilder GetBaseTemplate(string table)
 
 string getMigrationVersion() => migrationNumber.ToString().Length == 1 ? "00000000000" + migrationNumber : "0000000000" + migrationNumber;
 
-// TODO: Generate repositories
-// TODO: Generate services
-// TODO: Generate controller endpoints
-// TODO: Generate UI
-// TODO: Options
+string GetVersion()
+{
+    var assembly = Assembly.GetExecutingAssembly();
+    var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+    return fileVersionInfo.ProductVersion ?? "v0.1.0";
+}
+
+void SetTitle() => Console.Title = $"EzCrudLife\t| Version {GetVersion()}\t";
+
+void ShowHeader()
+{
+    string text = $@"
+$$$$$$$$\            $$$$$$\                            $$\ $$\       $$\  $$$$$$\           
+$$  _____|          $$  __$$\                           $$ |$$ |      \__|$$  __$$\          
+$$ |      $$$$$$$$\ $$ /  \__| $$$$$$\  $$\   $$\  $$$$$$$ |$$ |      $$\ $$ /  \__|$$$$$$\  
+$$$$$\    \____$$  |$$ |      $$  __$$\ $$ |  $$ |$$  __$$ |$$ |      $$ |$$$$\    $$  __$$\ 
+$$  __|     $$$$ _/ $$ |      $$ |  \__|$$ |  $$ |$$ /  $$ |$$ |      $$ |$$  _|   $$$$$$$$ |
+$$ |       $$  _/   $$ |  $$\ $$ |      $$ |  $$ |$$ |  $$ |$$ |      $$ |$$ |     $$   ____|
+$$$$$$$$\ $$$$$$$$\ \$$$$$$  |$$ |      \$$$$$$  |\$$$$$$$ |$$$$$$$$\ $$ |$$ |     \$$$$$$$\ 
+\________|\________| \______/ \__|       \______/  \_______|\________|\__|\__|      \_______|
+                                                                                         v{GetVersion()}";
+    
+    Console.WriteLine(text);
+}
