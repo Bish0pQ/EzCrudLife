@@ -67,6 +67,7 @@ public class ProjectService
             await AddPackage(Path.Combine(options.Directory, $"{projectName}.Models"), "Dapper.Contrib");
             await AddPackage(Path.Combine(options.Directory, $"{projectName}.Repositories"), "Dapper.Contrib");
             await AddPackage(Path.Combine(options.Directory, $"{projectName}.Repositories"), "Microsoft.Data.SqlClient");
+            await AddPackage(Path.Combine(options.Directory, $"{projectName}.Repositories"), "Microsoft.Extensions.Configuration");
             await AddPackage(Path.Combine(options.Directory, $"{projectName}.Repositories"), "Serilog");
 
             await AddReference($"{projectName}.Repositories", $"{projectName}.Models", options.Directory);

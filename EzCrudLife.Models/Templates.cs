@@ -24,6 +24,7 @@ public abstract class Templates
             .UseImport("Serilog")
             .UseImport("System.Data")
             .UseImport(nameSpace + ".Models")
+            .UseImport(nameSpace + ".Repositories.Interfaces")
             .InNamespace(nameSpace + ".Repositories")
             .InsertClass("%t"); // will be filled in later
 

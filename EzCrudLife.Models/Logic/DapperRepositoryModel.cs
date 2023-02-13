@@ -35,7 +35,7 @@ public class DapperRepositoryModel : IGeneratedModel
         
         // Declare variables
         sb.SetVariable("_logger", "ILogger", "private", "readonly")
-            .SetVariable("_sqlProvider", "DatabaseProvider", "private", "readonly")
+            .SetVariable("_sqlProvider", "IDatabaseProvider", "private", "readonly")
             .AppendLine();
         
         // Create constructors
@@ -45,7 +45,7 @@ public class DapperRepositoryModel : IGeneratedModel
                 "ILogger", "logger"
             },
             {
-                "DatabaseProvider", "sqlProvider"
+                "IDatabaseProvider", "sqlProvider"
             }
             
         });

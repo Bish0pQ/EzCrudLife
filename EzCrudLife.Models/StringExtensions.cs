@@ -94,9 +94,20 @@ public static class StringExtensions
                       ") ")
             .Indent(1).AppendLine("{");
         foreach (KeyValuePair<string, string> parameter in parameters)
-            sb.AppendLine($"\t\t_{parameter.Value.ToLower()} = {parameter.Value};");
+            sb.AppendLine($"\t\t_{parameter.Value} = {parameter.Value};");
         sb.AppendLine("\t}");
 
+        return sb;
+    }
+
+    public static StringBuilder InsertShortHandFunction(this StringBuilder sb, string methodName, string code, int defaultIndentStart = 1, params string[] parameters)
+    {
+        sb.Indent(defaultIndentStart).Append($"public string {methodName}(");
+        if (parameters.Length > 0) Array.ForEach(parameters, par =>
+        {
+            sb.Append(par);
+        });
+        sb.AppendLine($") => {code}");
         return sb;
     }
     
