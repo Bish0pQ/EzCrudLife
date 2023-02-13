@@ -84,7 +84,7 @@ public static class StringExtensions
     public static StringBuilder InsertAttribute(this StringBuilder builder, string attribute, string attributeValue) =>
         builder.Append($"[{attribute}({attributeValue})]");
     public static StringBuilder InsertClass(this StringBuilder builder, string className, bool isAbstract = false,
-        bool isStatic = false) => builder.Append($"\r\npublic {(isAbstract ? "abstract" : "")}{(isStatic ? "static" : "")} class " +
+        bool isStatic = false) => builder.Append($"\r\npublic {(isAbstract ? "abstract " : "")}{(isStatic ? "static " : "")}class " +
         $"{className}\r\n{{\r\n%d}}");
 
     public static StringBuilder InsertConstantVariable(this StringBuilder builder, Type t, string name, string value) =>
