@@ -90,7 +90,7 @@ public static class StringExtensions
     public static StringBuilder InNamespace(this StringBuilder builder, string nameSpace) => builder.Append($"namespace {nameSpace};\r\n");
     public static StringBuilder InsertAttribute(this StringBuilder builder, string attribute, string attributeValue) =>
         builder.Append($"[{attribute}({attributeValue})]");
-    public static StringBuilder InsertClass(this StringBuilder builder) => builder.Append("public class %t\r\n{\r\n%d}");
+    public static StringBuilder InsertClass(this StringBuilder builder) => builder.Append("\r\npublic class %t\r\n{\r\n%d}");
 
     public static StringBuilder InsertDapperMethod(this StringBuilder builder, string itemName, DapperMethodType methodType)
     {
