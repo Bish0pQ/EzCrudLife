@@ -127,8 +127,9 @@ public static class StringExtensions
 
         var indentLevel = 2;
         var tableName = itemName.Replace("Dto", "");
+        string useParameterString = methodType == DapperMethodType.Get ? "" : $"{itemName} {itemName.FirstCharToLower()}";
         builder.NewLine().Indent().AppendLine(
-                $"public async Task<{returnType}> {methodType.ToString()}{tableName}Async({itemName} {itemName.FirstCharToLower()})")
+                $"public async Task<{returnType}> {methodType.ToString()}{tableName}Async({useParameterString})")
             .Indent(1, "{")
             .NewLine().Indent(indentLevel).Append("try")
             .NewLine().Indent(indentLevel, startingCharacter: "{");

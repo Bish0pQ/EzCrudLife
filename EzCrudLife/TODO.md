@@ -1,5 +1,5 @@
 ﻿## Important changes
-🐞 Remove DTO parameter from GetAll repositories  
+🐞 ~~Remove DTO parameter from GetAll repositories~~  
 ✨ Add all interfaces for the repositories  
 ✨ Add Get{Object}ById implementations  
 ✨ Add support for SqlKata  
